@@ -1,0 +1,23 @@
+# Demo
+
+## Introduction
+
+```elixir
+IO.puts("Welcome!")
+```
+
+The source for this demo is here: https://github.com/brettinternet/docker-compose-hosted-demo
+
+You can double click/tap to edit blocks. Or, hover below a section to use the menu "+ Block" > "Markdown".
+
+## Questions
+
+Follow along the presentation and put your questions here.
+
+## Show & Tell
+
+Describe your own homelab or upload a picture to show it off here.
+
+## Playground
+
+Try stuff out here! Please, don't break the demo with an infinite loop. 😵‍💫

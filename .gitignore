@@ -1,0 +1,7 @@
+.env
+tmp
+.terraform
+.terraform.tfstate*
+terraform.tfstate*
+livebook/*
+!livebook/demo.livemd

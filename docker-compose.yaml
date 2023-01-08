@@ -1,0 +1,67 @@
+---
+version: "3"
+
+x-options: &options
+  environment: &environment
+    TZ: "${TZ}"
+  restart: "no"
+
+x-docker-sock: &docker-socket
+  volumes: ["/var/run/docker.sock:/var/run/docker.sock:ro"]
+
+services:
+  traefik:
+    <<: [*options, *docker-socket]
+    image: traefik:latest
+    container_name: traefik
+    command:
+      # - --log.level=DEBUG
+      - --entrypoints.web.address=:80
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+
+  cloudflared:
+    <<: *options
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    command: tunnel --no-autoupdate run
+    environment:
+      <<: *environment
+      TUNNEL_TOKEN: "${CLOUDFLARE_TUNNEL_TOKEN:?err}"
+      NO_TLS_VERIFY: true
+      TUNNEL_URL: http://traefik
+
+  cloudflare-companion:
+    <<: [*options, *docker-socket]
+    container_name: cloudflare-companion
+    image: tiredofit/traefik-cloudflare-companion:latest
+    environment:
+      <<: *environment
+      TRAEFIK_VERSION: 2
+      CF_TOKEN: "${CLOUDFLARE_API_TOKEN}"
+      TARGET_DOMAIN: "tunnel.${CLOUDFLARE_DOMAIN}"
+      DOMAIN1: "${CLOUDFLARE_DOMAIN}"
+      DOMAIN1_ZONE_ID: "${CLOUDFLARE_DOMAIN_ZONE_ID}"
+      DOMAIN1_PROXIED: true
+
+  livebook:
+    <<: [*options]
+    image: livebook/livebook
+    container_name: livebook
+    hostname: livebook
+    environment:
+      <<: *environment
+      LIVEBOOK_TOKEN_ENABLED: false
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 4G
+    volumes:
+      - ./livebook:/data
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.livebook.rule: Host(`livebook.${CLOUDFLARE_DOMAIN}`)
+      traefik.http.routers.livebook.entrypoints: web
+    ports:
+      - 8080:8080
