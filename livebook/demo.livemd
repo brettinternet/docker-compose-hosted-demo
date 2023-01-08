@@ -21,3 +21,21 @@ Describe your own homelab or upload a picture to show it off here.
 ## Playground
 
 Try stuff out here! Please, don't break the demo with an infinite loop. 😵‍💫
+
+<!-- livebook:{"break_markdown":true} -->
+
+```mermaid
+graph TB
+  tf(Terraform) -.- dns
+  tf -.- argo
+  dns{Cloudflare DNS} --> argo
+  argo((Cloudflare Tunnels)) == Tunnel ==> cloudflared
+  ddns -.- dns
+
+  subgraph lan[Docker Network]
+    style lan stroke-dasharray: 5 5
+    cloudflared --> traefik[Traefik reverse proxy]
+    traefik --> livebook[Livebook]
+    ddns[cloudflare-companion] -. service discovery .- livebook
+  end
+```
