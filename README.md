@@ -4,6 +4,22 @@ Docker compose offers a very simple way to run and maintain self-hosted homelab.
 
 This demo is for a single-node homelab using docker-compose to orchestrate a Cloudflared tunnel connection, a Traefik reverse proxy and Elixir's Livebook app. Cloudflare DNS is automated with CNAME creation from Traefik routes.
 
+```mermaid
+graph TB
+  tf(Terraform) -.- dns
+  tf -.- argo
+  dns{Cloudflare DNS} --> argo
+  argo((Cloudflare Tunnels)) == Tunnel ==> cloudflared
+  ddns -.- dns
+
+  subgraph lan[Docker Network]
+    style lan stroke-dasharray: 5 5
+    cloudflared --> traefik[Traefik reverse proxy]
+    traefik --> livebook[Livebook]
+    ddns[cloudflare-companion] -. service discovery .- livebook
+  end
+```
+
 ## Setup
 
 The phony make targets below are used to simplify each step. Look at the [Makefile](./Makefile) to see what each one does.
