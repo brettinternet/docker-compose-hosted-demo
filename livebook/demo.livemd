@@ -39,3 +39,26 @@ graph TB
     ddns[cloudflare-companion] -. service discovery .- livebook
   end
 ```
+
+<!-- livebook:{"break_markdown":true} -->
+
+```
+┌──────────┐
+│   dns    │
+└△────────┬┘
+ │       ┌▽───┐
+ │       │argo│
+ │       └┬───┘
+┌┴───┐    │
+│ddns│    │
+└┬───┘    │
+┌▽───────┐│
+│livebook││
+└△───────┘│
+┌┴──────┐ │
+│traefik│ │
+└△──────┘ │
+┌┴────────▽─┐
+│cloudflared│
+└───────────┘
+```
