@@ -63,5 +63,4 @@ services:
       traefik.enable: "true"
       traefik.http.routers.livebook.rule: Host(`livebook.${CLOUDFLARE_DOMAIN}`)
       traefik.http.routers.livebook.entrypoints: web
-    ports:
-      - 8080:8080
+      traefik.http.services.livebook.loadbalancer.server.port: 8080
