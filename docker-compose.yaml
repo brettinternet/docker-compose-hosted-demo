@@ -10,6 +10,27 @@ x-docker-sock: &docker-socket
   volumes: ["/var/run/docker.sock:/var/run/docker.sock:ro"]
 
 services:
+  livebook:
+    <<: [*options]
+    image: livebook/livebook
+    container_name: livebook
+    hostname: livebook
+    environment:
+      <<: *environment
+      LIVEBOOK_TOKEN_ENABLED: false
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 4G
+    volumes:
+      - ./livebook:/data
+    labels:
+      traefik.enable: "true"
+      traefik.http.routers.livebook.rule: Host(`livebook.${CLOUDFLARE_DOMAIN}`)
+      traefik.http.routers.livebook.entrypoints: web
+      traefik.http.services.livebook.loadbalancer.server.port: 8080
+
   traefik:
     <<: [*options, *docker-socket]
     image: traefik:latest
@@ -43,24 +64,3 @@ services:
       DOMAIN1: "${CLOUDFLARE_DOMAIN}"
       DOMAIN1_ZONE_ID: "${CLOUDFLARE_DOMAIN_ZONE_ID}"
       DOMAIN1_PROXIED: true
-
-  livebook:
-    <<: [*options]
-    image: livebook/livebook
-    container_name: livebook
-    hostname: livebook
-    environment:
-      <<: *environment
-      LIVEBOOK_TOKEN_ENABLED: false
-    deploy:
-      resources:
-        limits:
-          cpus: "2"
-          memory: 4G
-    volumes:
-      - ./livebook:/data
-    labels:
-      traefik.enable: "true"
-      traefik.http.routers.livebook.rule: Host(`livebook.${CLOUDFLARE_DOMAIN}`)
-      traefik.http.routers.livebook.entrypoints: web
-      traefik.http.services.livebook.loadbalancer.server.port: 8080
